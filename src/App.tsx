@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Menu, X, Star, ArrowRight, Phone, Mail, MapPin, Facebook, Twitter, Instagram } from 'lucide-react';
+import AdminDashboard from './components/admin/AdminDashboard';
 import ProductDetails from './components/ProductDetails';
 import Cart from './components/Cart';
 import Checkout from './components/Checkout';
@@ -17,7 +18,7 @@ interface CartItem {
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
-  const [currentView, setCurrentView] = useState<'home' | 'product' | 'cart' | 'checkout' | 'confirmation'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'product' | 'cart' | 'checkout' | 'confirmation' | 'admin'>('home');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [checkoutTotal, setCheckoutTotal] = useState(0);
 
@@ -154,6 +155,14 @@ function App() {
     setCurrentView('confirmation');
   };
 
+  const handleAdminAccess = () => {
+    setCurrentView('admin');
+  };
+
+  if (currentView === 'admin') {
+    return <AdminDashboard />;
+  }
+
   if (currentView === 'product') {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -178,6 +187,7 @@ function App() {
                   <a href="#" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Shop</a>
                   <a href="#" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">About</a>
                   <a href="#" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Contact</a>
+                  <button onClick={handleAdminAccess} className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Admin</button>
                 </div>
               </div>
 
@@ -331,6 +341,7 @@ function App() {
                 <a href="#" className="text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Shop</a>
                 <a href="#" className="text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">About</a>
                 <a href="#" className="text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Contact</a>
+                <button onClick={handleAdminAccess} className="text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 w-full text-left">Admin</button>
               </div>
             </div>
           )}
