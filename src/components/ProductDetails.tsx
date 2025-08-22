@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Star, Plus, Minus, ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Star, Plus, Minus, ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, DollarSign, X } from 'lucide-react';
 
 interface ProductDetailsProps {
   onBack: () => void;
@@ -11,6 +11,9 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ onBack, onAddToCart }) 
   const [quantity, setQuantity] = useState(1);
   const [selectedModel, setSelectedModel] = useState('');
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [showOfferModal, setShowOfferModal] = useState(false);
+  const [offerAmount, setOfferAmount] = useState('');
+  const [offerStatus, setOfferStatus] = useState<'idle' | 'accepted' | 'rejected'>('idle');
 
   const product = {
     id: 1,
@@ -22,6 +25,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ onBack, onAddToCart }) 
     inStock: true,
     stockCount: 15,
     description: "High-performance ceramic brake pads designed for superior stopping power and reduced brake dust. These premium pads offer excellent heat dissipation and longer lifespan compared to standard brake pads. Perfect for both daily driving and performance applications.",
+    condition: "New" as const,
+    minimumAcceptableOffer: 70.00,
     features: [
       "Low noise and vibration",
       "Reduced brake dust",
@@ -101,6 +106,59 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ onBack, onAddToCart }) 
   const handleAddToCart = () => {
     if (selectedModel && selectedModel !== "Select your vehicle") {
       onAddToCart(quantity);
+    }
+  };
+
+  const handleMakeOffer = () => {
+    setShowOfferModal(true);
+    setOfferStatus('idle');
+    setOfferAmount('');
+  };
+
+  const handleSubmitOffer = () => {
+    const offer = parseFloat(offerAmount);
+    
+    if (isNaN(offer) || offer <= 0) {
+      alert('Please enter a valid offer amount');
+      return;
+    }
+
+    if (offer >= product.minimumAcceptableOffer) {
+      // Auto-accept offer
+      setOfferStatus('accepted');
+      // In a real app, this would create an order in Firestore
+      console.log('Offer accepted! Creating order...', {
+        productId: product.id,
+        offerPrice: offer,
+        status: 'Offer Accepted',
+        isOffer: true
+      });
+    } else {
+      // Auto-reject offer
+      setOfferStatus('rejected');
+    }
+  };
+
+  const closeOfferModal = () => {
+    setShowOfferModal(false);
+    setOfferAmount('');
+    setOfferStatus('idle');
+  };
+
+  const getConditionColor = (condition: string) => {
+    switch (condition) {
+      case 'New':
+        return 'bg-green-100 text-green-800';
+      case 'Like New':
+        return 'bg-blue-100 text-blue-800';
+      case 'Used - Good':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'Used - Fair':
+        return 'bg-orange-100 text-orange-800';
+      case 'For Parts':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -204,6 +262,14 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ onBack, onAddToCart }) 
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Description</h3>
               <p className="text-gray-600 leading-relaxed">{product.description}</p>
+              
+              {/* Condition */}
+              <div className="mt-4 flex items-center space-x-2">
+                <span className="text-sm font-medium text-gray-700">Condition:</span>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getConditionColor(product.condition)}`}>
+                  {product.condition}
+                </span>
+              </div>
             </div>
 
             {/* Features */}
@@ -272,6 +338,16 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ onBack, onAddToCart }) 
               >
                 <ShoppingCart className="h-5 w-5" />
                 <span>Add to Cart - ${(product.price * quantity).toFixed(2)}</span>
+              </button>
+
+              {/* Make Offer Button */}
+              <button
+                onClick={handleMakeOffer}
+                disabled={!selectedModel || selectedModel === "Select your vehicle" || !product.inStock}
+                className="w-full mt-3 bg-white border-2 border-green-600 text-green-600 hover:bg-green-50 disabled:border-gray-300 disabled:text-gray-400 font-bold py-4 px-6 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              >
+                <DollarSign className="h-5 w-5" />
+                <span>Make an Offer</span>
               </button>
             </div>
 
@@ -342,6 +418,129 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ onBack, onAddToCart }) 
           </div>
         </div>
       </div>
+
+      {/* Make Offer Modal */}
+      {showOfferModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+            <div className="p-6">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Make an Offer</h2>
+                <button
+                  onClick={closeOfferModal}
+                  className="p-2 text-gray-400 hover:text-gray-600 rounded-lg"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {offerStatus === 'idle' && (
+                <>
+                  {/* Product Info */}
+                  <div className="mb-6">
+                    <div className="flex items-center space-x-4 mb-4">
+                      <img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="w-16 h-16 object-cover rounded-lg"
+                      />
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{product.name}</h3>
+                        <p className="text-lg font-bold text-blue-600">Listed at: ${product.price}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Offer Input */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Your Offer Amount
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                      <input
+                        type="number"
+                        value={offerAmount}
+                        onChange={(e) => setOfferAmount(e.target.value)}
+                        step="0.01"
+                        min="0"
+                        className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-lg"
+                        placeholder="0.00"
+                      />
+                    </div>
+                    <p className="text-sm text-gray-600 mt-2">
+                      Enter your best offer for this item
+                    </p>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    onClick={handleSubmitOffer}
+                    disabled={!offerAmount || parseFloat(offerAmount) <= 0}
+                    className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed"
+                  >
+                    Submit Offer
+                  </button>
+                </>
+              )}
+
+              {offerStatus === 'accepted' && (
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <ShoppingCart className="h-8 w-8 text-green-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-green-600 mb-2">Offer Accepted!</h3>
+                  <p className="text-gray-600 mb-4">
+                    Congratulations! Your offer of ${parseFloat(offerAmount).toFixed(2)} has been accepted.
+                  </p>
+                  <p className="text-sm text-gray-500 mb-6">
+                    An order has been created and you will receive confirmation details shortly.
+                  </p>
+                  <button
+                    onClick={closeOfferModal}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300"
+                  >
+                    Continue Shopping
+                  </button>
+                </div>
+              )}
+
+              {offerStatus === 'rejected' && (
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <X className="h-8 w-8 text-red-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-red-600 mb-2">Offer Too Low</h3>
+                  <p className="text-gray-600 mb-4">
+                    Unfortunately, your offer of ${parseFloat(offerAmount).toFixed(2)} is below the minimum acceptable amount.
+                  </p>
+                  <p className="text-sm text-gray-500 mb-6">
+                    You can try making a higher offer or purchase at the listed price.
+                  </p>
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => {
+                        setOfferStatus('idle');
+                        setOfferAmount('');
+                      }}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300"
+                    >
+                      Make Another Offer
+                    </button>
+                    <button
+                      onClick={closeOfferModal}
+                      className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-6 rounded-xl transition-all duration-300"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
