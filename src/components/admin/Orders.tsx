@@ -68,6 +68,8 @@ const Orders: React.FC<OrdersProps> = ({ orders, onUpdateOrderStatus }) => {
         return 'bg-blue-100 text-blue-800';
       case 'Delivered':
         return 'bg-green-100 text-green-800';
+      case 'Offer Accepted':
+        return 'bg-purple-100 text-purple-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -78,6 +80,7 @@ const Orders: React.FC<OrdersProps> = ({ orders, onUpdateOrderStatus }) => {
     pending: orders.filter(o => o.status === 'Pending').length,
     shipped: orders.filter(o => o.status === 'Shipped').length,
     delivered: orders.filter(o => o.status === 'Delivered').length,
+    offerAccepted: orders.filter(o => o.status === 'Offer Accepted').length,
     totalRevenue: orders.reduce((sum, order) => sum + order.total, 0)
   };
 
@@ -134,6 +137,18 @@ const Orders: React.FC<OrdersProps> = ({ orders, onUpdateOrderStatus }) => {
         <div className="bg-white rounded-2xl shadow-lg p-4">
           <div className="flex items-center justify-between">
             <div>
+              <p className="text-sm font-medium text-gray-600">Offers Accepted</p>
+              <p className="text-2xl font-bold text-purple-600">{orderStats.offerAccepted}</p>
+            </div>
+            <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+              <span className="text-purple-600 font-bold text-sm">$</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-lg p-4">
+          <div className="flex items-center justify-between">
+            <div>
               <p className="text-sm font-medium text-gray-600">Revenue</p>
               <p className="text-2xl font-bold text-purple-600">${orderStats.totalRevenue.toFixed(2)}</p>
             </div>
@@ -171,6 +186,7 @@ const Orders: React.FC<OrdersProps> = ({ orders, onUpdateOrderStatus }) => {
               <option value="Pending">Pending</option>
               <option value="Shipped">Shipped</option>
               <option value="Delivered">Delivered</option>
+              <option value="Offer Accepted">Offer Accepted</option>
             </select>
           </div>
 
@@ -257,6 +273,7 @@ const Orders: React.FC<OrdersProps> = ({ orders, onUpdateOrderStatus }) => {
                         <option value="Pending">Pending</option>
                         <option value="Shipped">Shipped</option>
                         <option value="Delivered">Delivered</option>
+                        <option value="Offer Accepted">Offer Accepted</option>
                       </select>
                     </td>
                     <td className="py-4 px-6">
@@ -379,6 +396,7 @@ const Orders: React.FC<OrdersProps> = ({ orders, onUpdateOrderStatus }) => {
                     <option value="Pending">Pending</option>
                     <option value="Shipped">Shipped</option>
                     <option value="Delivered">Delivered</option>
+                    <option value="Offer Accepted">Offer Accepted</option>
                   </select>
                 </div>
               </div>

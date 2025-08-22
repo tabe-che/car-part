@@ -28,6 +28,8 @@ export interface Product {
   inStock: boolean;
   stockCount: number;
   createdAt: string;
+  condition: 'New' | 'Like New' | 'Used - Good' | 'Used - Fair' | 'For Parts';
+  minimumAcceptableOffer: number;
 }
 
 export interface Order {
@@ -40,9 +42,11 @@ export interface Order {
     price: number;
   }>;
   total: number;
-  status: 'Pending' | 'Shipped' | 'Delivered';
+  status: 'Pending' | 'Shipped' | 'Delivered' | 'Offer Accepted';
   orderDate: string;
   shippingAddress: string;
+  isOffer?: boolean;
+  offerPrice?: number;
 }
 
 const AdminDashboard: React.FC = () => {
@@ -63,7 +67,9 @@ const AdminDashboard: React.FC = () => {
       images: ["https://images.pexels.com/photos/3862601/pexels-photo-3862601.jpeg?auto=compress&cs=tinysrgb&w=400"],
       inStock: true,
       stockCount: 15,
-      createdAt: "2024-01-15"
+      createdAt: "2024-01-15",
+      condition: "New",
+      minimumAcceptableOffer: 70.00
     },
     {
       id: 2,
@@ -76,7 +82,9 @@ const AdminDashboard: React.FC = () => {
       images: ["https://images.pexels.com/photos/13065690/pexels-photo-13065690.jpeg?auto=compress&cs=tinysrgb&w=400"],
       inStock: true,
       stockCount: 8,
-      createdAt: "2024-01-10"
+      createdAt: "2024-01-10",
+      condition: "Like New",
+      minimumAcceptableOffer: 25.00
     }
   ]);
 

@@ -15,7 +15,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onAddProduct, onCancel }) => {
     originalPrice: '',
     category: '',
     stockCount: '',
-    inStock: true
+    inStock: true,
+    condition: '',
+    minimumAcceptableOffer: ''
   });
 
   const [carModels, setCarModels] = useState<string[]>(['']);
@@ -33,6 +35,14 @@ const AddProduct: React.FC<AddProductProps> = ({ onAddProduct, onCancel }) => {
     'Body Parts',
     'Interior',
     'Maintenance'
+  ];
+
+  const conditions = [
+    'New',
+    'Like New', 
+    'Used - Good',
+    'Used - Fair',
+    'For Parts'
   ];
 
   const sampleImages = [
@@ -90,6 +100,8 @@ const AddProduct: React.FC<AddProductProps> = ({ onAddProduct, onCancel }) => {
     if (!formData.price || parseFloat(formData.price) <= 0) newErrors.price = 'Valid price is required';
     if (!formData.category) newErrors.category = 'Category is required';
     if (!formData.stockCount || parseInt(formData.stockCount) < 0) newErrors.stockCount = 'Valid stock count is required';
+    if (!formData.condition) newErrors.condition = 'Condition is required';
+    if (!formData.minimumAcceptableOffer || parseFloat(formData.minimumAcceptableOffer) < 0) newErrors.minimumAcceptableOffer = 'Valid minimum acceptable offer is required';
     if (carModels.filter(model => model.trim()).length === 0) newErrors.carModels = 'At least one car model is required';
     if (images.length === 0) newErrors.images = 'At least one image is required';
 
@@ -113,7 +125,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onAddProduct, onCancel }) => {
       carModels: carModels.filter(model => model.trim()),
       images: images,
       inStock: formData.inStock,
-      stockCount: parseInt(formData.stockCount)
+      stockCount: parseInt(formData.stockCount),
+      condition: formData.condition as Product['condition'],
+      minimumAcceptableOffer: parseFloat(formData.minimumAcceptableOffer)
     };
 
     onAddProduct(productData);
@@ -248,6 +262,45 @@ const AddProduct: React.FC<AddProductProps> = ({ onAddProduct, onCancel }) => {
                 placeholder="0"
               />
               {errors.stockCount && <p className="text-red-500 text-sm mt-1">{errors.stockCount}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Condition *
+              </label>
+              <select
+                name="condition"
+                value={formData.condition}
+                onChange={handleInputChange}
+                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+                  errors.condition ? 'border-red-500' : 'border-gray-300'
+                }`}
+              >
+                <option value="">Select Condition</option>
+                {conditions.map(condition => (
+                  <option key={condition} value={condition}>{condition}</option>
+                ))}
+              </select>
+              {errors.condition && <p className="text-red-500 text-sm mt-1">{errors.condition}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Minimum Acceptable Offer *
+              </label>
+              <input
+                type="number"
+                name="minimumAcceptableOffer"
+                value={formData.minimumAcceptableOffer}
+                onChange={handleInputChange}
+                step="0.01"
+                min="0"
+                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+                  errors.minimumAcceptableOffer ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="0.00"
+              />
+              {errors.minimumAcceptableOffer && <p className="text-red-500 text-sm mt-1">{errors.minimumAcceptableOffer}</p>}
             </div>
           </div>
 

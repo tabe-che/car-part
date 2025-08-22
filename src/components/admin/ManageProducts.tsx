@@ -160,6 +160,7 @@ const ManageProducts: React.FC<ManageProductsProps> = ({
                     Price {sortBy === 'price' && (sortOrder === 'asc' ? '↑' : '↓')}
                   </th>
                   <th className="text-left py-4 px-6 font-medium text-gray-600">Category</th>
+                  <th className="text-left py-4 px-6 font-medium text-gray-600">Condition</th>
                   <th 
                     className="text-left py-4 px-6 font-medium text-gray-600 cursor-pointer hover:text-gray-900"
                     onClick={() => handleSort('stock')}
@@ -167,6 +168,7 @@ const ManageProducts: React.FC<ManageProductsProps> = ({
                     Stock {sortBy === 'stock' && (sortOrder === 'asc' ? '↑' : '↓')}
                   </th>
                   <th className="text-left py-4 px-6 font-medium text-gray-600">Status</th>
+                  <th className="text-left py-4 px-6 font-medium text-gray-600">Min Offer</th>
                   <th className="text-left py-4 px-6 font-medium text-gray-600">Actions</th>
                 </tr>
               </thead>
@@ -204,6 +206,17 @@ const ManageProducts: React.FC<ManageProductsProps> = ({
                       </span>
                     </td>
                     <td className="py-4 px-6">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        product.condition === 'New' ? 'bg-green-100 text-green-800' :
+                        product.condition === 'Like New' ? 'bg-blue-100 text-blue-800' :
+                        product.condition === 'Used - Good' ? 'bg-yellow-100 text-yellow-800' :
+                        product.condition === 'Used - Fair' ? 'bg-orange-100 text-orange-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {product.condition}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
                       <span className={`font-medium ${
                         product.stockCount > 10 ? 'text-green-600' :
                         product.stockCount > 0 ? 'text-yellow-600' :
@@ -220,6 +233,9 @@ const ManageProducts: React.FC<ManageProductsProps> = ({
                       }`}>
                         {product.inStock && product.stockCount > 0 ? 'In Stock' : 'Out of Stock'}
                       </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className="font-medium text-gray-900">${product.minimumAcceptableOffer?.toFixed(2) || '0.00'}</span>
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex items-center space-x-2">
